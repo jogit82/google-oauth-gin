@@ -1,10 +1,10 @@
 # Google OAuth Go Sample Project - Web application
 
-Web based version of [GoProgressQuest](https://github.com/Skarlso/goprogressquest).
+Web based version of [GoProgressQuest](https://github.com/jogit82/goprogressquest).
 
 # Installation
 
-Simply `go get github.com/Skarlso/google-oauth-go-sample`.
+Simply `go get github.com/jogit82/google-oauth-gin`.
 
 # Setup
 
@@ -31,5 +31,5 @@ To run it, simply build & run and navigate to http://127.0.0.1:9090/login, nothi
 
 ```
 go build
-./google-oauth-go-sample
+./google-oauth-gin
 ```

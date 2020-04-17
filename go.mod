@@ -1,4 +1,4 @@
-module github.com/Skarlso/google-oauth-go-sample
+module github.com/jogit82/google-oauth-gin
 
 go 1.12
 

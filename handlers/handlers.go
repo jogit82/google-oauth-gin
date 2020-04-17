@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/Skarlso/google-oauth-go-sample/database"
-	"github.com/Skarlso/google-oauth-go-sample/structs"
+	"github.com/jogit82/google-oauth-gin/database"
+	"github.com/jogit82/google-oauth-gin/structs"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/oauth2"
