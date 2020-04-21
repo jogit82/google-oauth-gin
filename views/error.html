@@ -1,0 +1,6 @@
+{{ define "content" }}
+  <h3>{{ .message }}</h3>
+  {{ if .unauthorized }}
+    <a class="btn btn-primary" href="/login">Login</a>
+  {{ end }}
+{{ end }}

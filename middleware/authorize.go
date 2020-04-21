@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/contrib/sessions"
@@ -13,7 +14,11 @@ func AuthorizeRequest() gin.HandlerFunc {
 		session := sessions.Default(c)
 		v := session.Get("user-id")
 		if v == nil {
-			c.HTML(http.StatusUnauthorized, "unauthorized.tmpl", gin.H{"message": "You need to login in order to view this page"})
+			log.Println("not logged in >>>>>>")
+			c.HTML(http.StatusUnauthorized, "error", gin.H{
+				"message":      "You need to login in order to view this page",
+				"unauthorized": true,
+			})
 			c.Abort() // c.index = abortIndex
 		}
 		c.Next() // c.index++

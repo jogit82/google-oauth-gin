@@ -1,8 +1,17 @@
+/*
+ * Copyright 2018 Foolin.  All rights reserved.
+ *
+ * Use of this source code is governed by a MIT style
+ * license that can be found in the LICENSE file.
+ *
+ */
+
 package main
 
 import (
 	"log"
 
+	"github.com/foolin/goview/supports/ginview"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/jogit82/google-oauth-gin/handlers"
@@ -11,6 +20,7 @@ import (
 
 func setupRouter() *gin.Engine {
 	router := gin.Default()
+	router.HTMLRender = ginview.Default()
 	token, err := handlers.RandToken(64)
 	if err != nil {
 		log.Fatal("unable to generate random token: ", err)
@@ -25,7 +35,7 @@ func setupRouter() *gin.Engine {
 	router.Use(sessions.Sessions("goquestsession", store))
 	router.Static("/css", "./static/css")
 	router.Static("/img", "./static/img")
-	router.LoadHTMLGlob("templates/*")
+	// router.LoadHTMLGlob("templates/*")
 
 	// these pages have to have an authorized login
 	authorized := router.Group("/auth")
@@ -41,6 +51,7 @@ func setupRouter() *gin.Engine {
 	router.GET("/", handlers.IndexHandler)
 	router.GET("/login", handlers.LoginHandler)
 	router.GET("/auth", handlers.AuthHandler)
+	router.GET("/page", handlers.PageHandler)
 	return router
 }
 

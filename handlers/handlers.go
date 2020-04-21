@@ -69,7 +69,19 @@ func init() {
 
 // IndexHandler handles the location /.
 func IndexHandler(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", gin.H{"title": "Home Page"})
+	c.HTML(http.StatusOK, "index", gin.H{
+		"title": "Index title!",
+		"add": func(a int, b int) int {
+			return a + b
+		},
+	})
+}
+
+// PageHandler handles the location /.
+func PageHandler(c *gin.Context) {
+	c.HTML(http.StatusOK, "page.html", gin.H{
+		"title": "Page file title!!",
+	})
 }
 
 // AuthHandler handles authentication of a user and initiates a session.
@@ -84,7 +96,7 @@ func AuthHandler(c *gin.Context) {
 	queryState := c.Request.URL.Query().Get("state")
 	if retrievedState != queryState {
 		log.Printf("Invalid session state: retrieved: %s; Param: %s", retrievedState, queryState)
-		c.HTML(http.StatusUnauthorized, "error.tmpl", gin.H{"message": "Invalid session state. retrievedState != queryState"})
+		c.HTML(http.StatusUnauthorized, "error", gin.H{"message": "Invalid session state. retrievedState != queryState"})
 		return
 	}
 	code := c.Request.URL.Query().Get("code")
@@ -92,7 +104,7 @@ func AuthHandler(c *gin.Context) {
 	tok, err := conf.Exchange(oauth2.NoContext, code)
 	if err != nil {
 		log.Println(err)
-		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{"message": "Login failed. Please try again."})
+		c.HTML(http.StatusBadRequest, "error", gin.H{"message": "Login failed. Please try again."})
 		return
 	}
 
@@ -110,7 +122,7 @@ func AuthHandler(c *gin.Context) {
 	u := structs.User{}
 	if err = json.Unmarshal(data, &u); err != nil {
 		log.Println(err)
-		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{"message": "Error marshalling response. Please try agian."})
+		c.HTML(http.StatusBadRequest, "error", gin.H{"message": "Error marshalling response. Please try agian."})
 		return
 	}
 
@@ -122,7 +134,7 @@ func AuthHandler(c *gin.Context) {
 	err = session.Save()
 	if err != nil {
 		log.Println(err)
-		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{"message": "Error while saving session. Please try again."})
+		c.HTML(http.StatusBadRequest, "error", gin.H{"message": "Error while saving session. Please try again."})
 		return
 	}
 	seen := false
@@ -133,12 +145,12 @@ func AuthHandler(c *gin.Context) {
 		err = db.SaveUser(&u)
 		if err != nil {
 			log.Println(err)
-			c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{"message": "Error while saving user. Please try again."})
+			c.HTML(http.StatusBadRequest, "error", gin.H{"message": "Error while saving user. Please try again."})
 			return
 		}
 	}
 	// c.HTML(http.StatusOK, "battle.tmpl", gin.H{"email": u.Email, "seen": seen})
-	c.HTML(http.StatusOK, "user.tmpl", gin.H{"user": u.Email, "userImg": u.Picture, "seen": seen})
+	c.HTML(http.StatusOK, "user", gin.H{"user": u.Email, "userImg": u.Picture, "seen": seen})
 }
 
 // LoginHandler handles the login procedure.
@@ -146,25 +158,25 @@ func LoginHandler(c *gin.Context) {
 	log.Println("client IP>>>>>", c.ClientIP())
 	state, err := RandToken(32)
 	if err != nil {
-		c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{"message": "Error while generating random data."})
+		c.HTML(http.StatusInternalServerError, "error", gin.H{"message": "Error while generating random data."})
 		return
 	}
 	session := sessions.Default(c)
 	session.Set("state", state)
 	err = session.Save()
 	if err != nil {
-		c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{"message": "Error while saving session."})
+		c.HTML(http.StatusInternalServerError, "error", gin.H{"message": "Error while saving session."})
 		return
 	}
 	link := getLoginURL(state)
-	c.HTML(http.StatusOK, "auth.tmpl", gin.H{"link": link})
+	c.HTML(http.StatusOK, "auth", gin.H{"link": link})
 }
 
 // FieldHandler is a rudementary handler for logged in users.
 func FieldHandler(c *gin.Context) {
 	session := sessions.Default(c)
 	userID := session.Get("user-id")
-	c.HTML(http.StatusOK, "field.tmpl", gin.H{"user": userID})
+	c.HTML(http.StatusOK, "field", gin.H{"user": userID})
 }
 
 // ProfileHandler to handled user's profile page
@@ -172,5 +184,5 @@ func ProfileHandler(c *gin.Context) {
 	session := sessions.Default(c)
 	userID := session.Get("user-id")
 	userImg := session.Get("user-img")
-	c.HTML(http.StatusOK, "user.tmpl", gin.H{"user": userID, "userImg": userImg})
+	c.HTML(http.StatusOK, "user", gin.H{"user": userID, "userImg": userImg})
 }
