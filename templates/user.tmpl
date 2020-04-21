@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<link rel="icon"
+      type="image/png"
+      href="/img/favicon.ico" />
+<html>
+  <head>
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+  {{ if .seen }}
+    <h1>Welcome back! {{ .user }}</h1>
+  {{ else }}
+    <h1>Welcome to the site! {{ .user }}</h1>
+  {{ end }}
+    <h1>Profile Page</h1>
+    {{ if .userImg }}
+      <div style="text-align: center">
+        <img style="height: 96px; width: 96px;" class="user-img" src="{{ .userImg }}" alt="profile image from Google">
+      </div>
+    {{ end }}
+  </body>
+</html>

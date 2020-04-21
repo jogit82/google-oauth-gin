@@ -9,10 +9,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/jogit82/google-oauth-gin/database"
-	"github.com/jogit82/google-oauth-gin/structs"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/jogit82/google-oauth-gin/database"
+	"github.com/jogit82/google-oauth-gin/structs"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -36,6 +36,8 @@ func RandToken(l int) (string, error) {
 }
 
 func getLoginURL(state string) string {
+	// State can be some kind of random generated hash string.
+	// See relevant RFC: http://tools.ietf.org/html/rfc6749#section-10.12
 	return conf.AuthCodeURL(state)
 }
 
@@ -51,33 +53,42 @@ func init() {
 	}
 
 	conf = &oauth2.Config{
-		ClientID:     cred.Cid,
-		ClientSecret: cred.Csecret,
+		ClientID:     cred.Cid,     // application's ID.
+		ClientSecret: cred.Csecret, // application's secret.
 		RedirectURL:  "http://127.0.0.1:9090/auth",
-		Scopes: []string{
+		Scopes: []string{ // specifies optional requested permissions.
 			"https://www.googleapis.com/auth/userinfo.email", // You have to select your own scope from here -> https://developers.google.com/identity/protocols/googlescopes#google_sign-in
 		},
+		// Endpoint contains the resource server's token endpoint URLs.
+		// These are constants specific to each server and are
+		// often available via site-specific packages, such as
+		// google.Endpoint or github.Endpoint.
 		Endpoint: google.Endpoint,
 	}
 }
 
 // IndexHandler handles the location /.
 func IndexHandler(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.tmpl", gin.H{})
+	c.HTML(http.StatusOK, "index.html", gin.H{"title": "Home Page"})
 }
 
 // AuthHandler handles authentication of a user and initiates a session.
 func AuthHandler(c *gin.Context) {
 	// Handle the exchange code to initiate a transport.
+
+	// shortcut to get session
 	session := sessions.Default(c)
+
+	// Get returns the session value associated to the given key.
 	retrievedState := session.Get("state")
 	queryState := c.Request.URL.Query().Get("state")
 	if retrievedState != queryState {
 		log.Printf("Invalid session state: retrieved: %s; Param: %s", retrievedState, queryState)
-		c.HTML(http.StatusUnauthorized, "error.tmpl", gin.H{"message": "Invalid session state."})
+		c.HTML(http.StatusUnauthorized, "error.tmpl", gin.H{"message": "Invalid session state. retrievedState != queryState"})
 		return
 	}
 	code := c.Request.URL.Query().Get("code")
+	// Exchange converts an authorization code into a token.
 	tok, err := conf.Exchange(oauth2.NoContext, code)
 	if err != nil {
 		log.Println(err)
@@ -85,6 +96,7 @@ func AuthHandler(c *gin.Context) {
 		return
 	}
 
+	// Client returns an HTTP client using the provided token. The token will auto-refresh as necessary. The underlying HTTP transport will be obtained using the provided context. The returned client and its Transport should not be modified.
 	client := conf.Client(oauth2.NoContext, tok)
 	userinfo, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
 	if err != nil {
@@ -94,13 +106,19 @@ func AuthHandler(c *gin.Context) {
 	}
 	defer userinfo.Body.Close()
 	data, _ := ioutil.ReadAll(userinfo.Body)
+	log.Println("Resp body: ", string(data))
 	u := structs.User{}
 	if err = json.Unmarshal(data, &u); err != nil {
 		log.Println(err)
 		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{"message": "Error marshalling response. Please try agian."})
 		return
 	}
+
+	// Set sets the session value associated to the given key.
 	session.Set("user-id", u.Email)
+	session.Set("user-img", u.Picture)
+
+	// Save saves all sessions used during the current request.
 	err = session.Save()
 	if err != nil {
 		log.Println(err)
@@ -119,11 +137,13 @@ func AuthHandler(c *gin.Context) {
 			return
 		}
 	}
-	c.HTML(http.StatusOK, "battle.tmpl", gin.H{"email": u.Email, "seen": seen})
+	// c.HTML(http.StatusOK, "battle.tmpl", gin.H{"email": u.Email, "seen": seen})
+	c.HTML(http.StatusOK, "user.tmpl", gin.H{"user": u.Email, "userImg": u.Picture, "seen": seen})
 }
 
 // LoginHandler handles the login procedure.
 func LoginHandler(c *gin.Context) {
+	log.Println("client IP>>>>>", c.ClientIP())
 	state, err := RandToken(32)
 	if err != nil {
 		c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{"message": "Error while generating random data."})
@@ -145,4 +165,12 @@ func FieldHandler(c *gin.Context) {
 	session := sessions.Default(c)
 	userID := session.Get("user-id")
 	c.HTML(http.StatusOK, "field.tmpl", gin.H{"user": userID})
+}
+
+// ProfileHandler to handled user's profile page
+func ProfileHandler(c *gin.Context) {
+	session := sessions.Default(c)
+	userID := session.Get("user-id")
+	userImg := session.Get("user-img")
+	c.HTML(http.StatusOK, "user.tmpl", gin.H{"user": userID, "userImg": userImg})
 }
