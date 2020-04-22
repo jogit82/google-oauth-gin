@@ -1,0 +1,60 @@
+{{ define "content" }}
+<form class="form-inline my-2 my-lg-0" method="POST" action="/searchmovies">      
+    <input name="query" placeholder="Dexter" class="form-control mr-sm-2" type="search" aria-label="Search">
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+</form>
+{{ if .query }}<p>You searched for "{{ .query }}"</p>{{ end }}
+    {{ $movieslength := len .movies }}{{ if ne $movieslength 0 }}
+        <hr>
+        <h1> Movies </h1>
+        <div class="row">
+            {{ range .movies }}
+                {{ if .Name }}
+                <div class="card" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ .Name }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Popularity: {{ .Popularity }}</h6>
+                        <h6 class="card-subtitle mb-2 text-muted">Vote Count: {{ .VoteCount }}</h6>
+                        <p class="card-text">{{ .Overview }}</p>
+                    </div>
+                </div>
+                {{ end }}
+            {{ end }}
+        </div>
+    {{ end }}
+    {{ $showslength := len .shows }}{{ if ne $showslength 0 }}
+        <hr>
+        <h1> Shows </h1>
+        <div class="row">
+            {{ range .shows }}
+                {{ if .Name }}
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ .Name }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Popularity: {{ .Popularity }}</h6>
+                            <h6 class="card-subtitle mb-2 text-muted">Vote Count: {{ .VoteCount }}</h6>
+                            <p class="card-text">{{ .Overview }}</p>
+                        </div>
+                    </div>
+                {{ end }}
+            {{ end }}
+        </div>
+    {{ end }}
+    {{ $peoplelength := len .people }}{{ if ne $peoplelength 0 }}
+        <hr>
+        <h1> People </h1>
+        <div class="row">
+            {{ range .people }}
+                {{ if .Name }}
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ .Name }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Popularity: {{ .Popularity }}</h6>
+                            <p class="card-text">{{ .Overview }}</p>
+                        </div>
+                    </div>
+                {{ end }}
+            {{ end }}
+        </div>
+    {{ end }}
+{{ end }}

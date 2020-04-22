@@ -17,9 +17,11 @@
         {{include "layouts/head" }}
     </head>
 
-    <body class="container">
+    <body>
         {{include "layouts/menu" }}
-        {{template "content" .}}
+        <div class="container content">
+            {{template "content" .}}
+        </div>
         <hr>
         {{include "layouts/footer"}}
     </body>

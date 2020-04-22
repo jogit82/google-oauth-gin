@@ -38,7 +38,7 @@ func setupRouter() *gin.Engine {
 	// router.LoadHTMLGlob("templates/*")
 
 	// these pages have to have an authorized login
-	authorized := router.Group("/auth")
+	authorized := router.Group("")
 	// per group middleware! in this case we use the custom created
 	// AuthorizeRequest() middleware just in the "authorized" group.
 	authorized.Use(middleware.AuthorizeRequest())
@@ -51,6 +51,10 @@ func setupRouter() *gin.Engine {
 	router.GET("/", handlers.IndexHandler)
 	router.GET("/login", handlers.LoginHandler)
 	router.GET("/auth", handlers.AuthHandler)
+	router.POST("/search", handlers.SearchHandler)
+	router.GET("/random", handlers.RandomHandler)
+	// router.GET("/moviesearchform", handlers.MovieSearchFormHandler)
+	router.POST("/searchmovies", handlers.SearchMoviesHandler)
 	router.GET("/page", handlers.PageHandler)
 	return router
 }

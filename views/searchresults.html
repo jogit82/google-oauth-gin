@@ -1,0 +1,8 @@
+{{ define "content" }}
+    <h1>Search Result</h1>
+    {{ if .query }}<p>You searched for "{{ .query }}"</p>{{ end }}
+    <a href="/random" class="btn btn-outline-success my-2 my-sm-0">Random</a>
+    <p>{{ .name }}({{ .year }}) - {{ .number }}</p>
+    <img src="{{ .image }}" alt="">
+    <p>{{ .transcript }}</p>
+{{ end }}
